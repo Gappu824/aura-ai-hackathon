@@ -20,28 +20,33 @@ const MOCK_SINGLE_REVIEW_FAKE = "Wow. This product is amazing. I love it very mu
 
 export default function ProductPage() {
   const [clarityAlert, setClarityAlert] = useState<string | null>(null);
-  const [isClarityLoading, setIsClarityLoading] = useState(true); // For mock data clarity
+  const [isClarityLoading, setIsClarityLoading] = useState(true);
 
-  const [goodReviewAnalysis, setGoodReviewAnalysis] = useState<any>(null); // Use 'any' or define type
-  const [isGoodReviewLoading, setIsGoodReviewLoading] = useState(false);
+  // --- MODIFIED: Specify the expected type for analysis results ---
+  interface AnalysisResult {
+    authenticity_score: number;
+    reasoning: string;
+    error?: string; // Add error property if your backend can return it
+  }
 
-  const [fakeReviewAnalysis, setFakeReviewAnalysis] = useState<any>(null); // Use 'any' or define type
-  const [isFakeReviewLoading, setIsFakeReviewLoading] = useState(false);
+  const [goodReviewAnalysis, setGoodReviewAnalysis] = useState<AnalysisResult | null>(null);
+  const [isGoodReviewLoading, setIsGoodReviewLoading] = useState<boolean>(false);
 
-  // --- START ADDITIONS for User Input Review ---
+  const [fakeReviewAnalysis, setFakeReviewAnalysis] = useState<AnalysisResult | null>(null);
+  const [isFakeReviewLoading, setIsFakeReviewLoading] = useState<boolean>(false);
+
   const [userInputReview, setUserInputReview] = useState<string>('');
-  const [userInputAuthenticityAnalysis, setUserInputAuthenticityAnalysis] = useState<any>(null);
+  const [userInputAuthenticityAnalysis, setUserInputAuthenticityAnalysis] = useState<AnalysisResult | null>(null);
   const [isUserInputAuthenticityLoading, setIsUserInputAuthenticityLoading] = useState<boolean>(false);
   const [userInputClarityAlert, setUserInputClarityAlert] = useState<string | null>(null);
   const [isUserInputClarityLoading, setIsUserInputClarityLoading] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null); // Global error for user input
-  // --- END ADDITIONS for User Input Review ---
+  // --- END MODIFIED ---
 
 
   useEffect(() => {
     const fetchClarityAlert = async () => {
       try {
-        // Use process.env.NEXT_PUBLIC_API_URL here as well for consistency
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/generate_clarity_alert`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -51,14 +56,14 @@ export default function ProductPage() {
             const errorData = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
             throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
         }
-        const data = await response.json();
+        const data: { clarity_alert: string | null; error?: string } = await response.json(); // Explicit type for clarity data
         if (data.error) {
             console.error("Clarity Alert API Error:", data.error);
             setClarityAlert(`Error: ${data.error}`);
         } else {
             setClarityAlert(data.clarity_alert);
         }
-      } catch (error: any) { // Add type 'any' to error
+      } catch (error: any) {
         console.error("Error fetching clarity alert:", error);
         setClarityAlert(`Error fetching clarity alert: ${error.message || 'Network error'}`);
       } finally {
@@ -68,16 +73,16 @@ export default function ProductPage() {
     fetchClarityAlert();
   }, []);
 
+  // --- MODIFIED: Explicit types for setLoading and setAnalysis functions ---
   const analyzeReview = async (
     reviewText: string,
-    setLoading: (isLoading: boolean) => void, // Explicit type for setLoading
-    setAnalysis: (analysis: any) => void,    // Explicit type for setAnalysis
-    isUserInput: boolean = false // Added to distinguish user input from mock data calls
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult | null>>,
+    isUserInput: boolean = false
   ) => {
     setLoading(true);
-    if (isUserInput) setApiError(null); // Clear global error for user input
+    if (isUserInput) setApiError(null);
     try {
-      // Use process.env.NEXT_PUBLIC_API_URL for all API calls
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/analyze_review_authenticity`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,27 +90,28 @@ export default function ProductPage() {
       });
 
       if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
-          throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+          const errorData: { error?: string, message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
+          throw new Error(errorData.error || errorData.message || `HTTP error! Status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: AnalysisResult = await response.json(); // Explicit type for authenticity data
 
       if (data.error) {
           console.error("Authenticity API Error:", data.error);
           if (isUserInput) setApiError(data.error);
-          else setAnalysis({ error: data.error }); // Pass error to individual report
+          else setAnalysis({ error: data.error, authenticity_score: 0, reasoning: "" }); // Provide a minimal default if error for mock
       } else {
           setAnalysis(data);
       }
-    } catch (error: any) { // Add type 'any' to error
+    } catch (error: any) {
       console.error("Error analyzing review:", error);
       if (isUserInput) setApiError(`Failed to analyze review: ${error.message || 'Network error'}`);
-      else setAnalysis({ error: `Failed to analyze: ${error.message || 'Network error'}` }); // Pass error to individual report
+      else setAnalysis({ error: `Failed to analyze: ${error.message || 'Network error'}`, authenticity_score: 0, reasoning: "" }); // Provide a minimal default if error for mock
     } finally {
       setLoading(false);
     }
   };
+  // --- END MODIFIED ---
 
   // --- START ADDITIONS: User Input Clarity Function ---
   const handleUserInputClarity = async () => {
@@ -126,11 +132,11 @@ export default function ProductPage() {
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
-            throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+            const errorData: { error?: string, message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
+            throw new Error(errorData.error || errorData.message || `HTTP error! Status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const data: { clarity_alert: string | null; error?: string } = await response.json(); // Explicit type for clarity data
 
         if (data.error) {
             setApiError(data.error);
@@ -194,6 +200,7 @@ export default function ProductPage() {
         {userInputAuthenticityAnalysis && (
             <div className="mt-8 p-6 border border-gray-300 rounded-lg shadow-lg bg-white text-gray-800">
                 <h3 className="text-xl font-bold mb-4 text-blue-700">Your Review Authenticity Analysis:</h3>
+                {/* --- MODIFIED: Handle potential error object in analysis --- */}
                 {userInputAuthenticityAnalysis.error ? (
                     <p className="text-red-600">Error: {userInputAuthenticityAnalysis.error}</p>
                 ) : (
@@ -218,6 +225,7 @@ export default function ProductPage() {
                         </p>
                     </>
                 )}
+                {/* --- END MODIFIED --- */}
             </div>
         )}
 
@@ -237,6 +245,7 @@ export default function ProductPage() {
       {/* Moved this section for better flow: User input first, then examples */}
       <div className="mb-10 p-6 border border-gray-300 rounded-lg shadow-md bg-white">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Overall Product Review Clarity Analysis</h2>
+        {/* --- MODIFIED: Ensure ClarityAlert also receives errors if present --- */}
         <ClarityAlert alertText={clarityAlert} isLoading={isClarityLoading} />
       </div>
 
@@ -249,12 +258,13 @@ export default function ProductPage() {
       <div className="mb-6 p-4 border border-gray-300 rounded-lg shadow-sm bg-white">
         <p className="italic mb-2 text-gray-700">"{MOCK_SINGLE_REVIEW_GOOD}"</p>
         <button
-          onClick={() => analyzeReview(MOCK_SINGLE_REVIEW_GOOD, setIsGoodReviewLoading, setGoodReviewAnalysis)}
+          onClick={() => analyzeReview(MOCK_SINGLE_REVIEW_GOOD, setIsGoodReviewLoading, setGoodReviewAnalysis, false)}
           className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isGoodReviewLoading}
         >
           {isGoodReviewLoading ? 'Analyzing...' : 'Analyze Authenticity'}
         </button>
+        {/* --- MODIFIED: Pass isGoodReviewLoading correctly --- */}
         <AuthenticityReport analysis={goodReviewAnalysis} isLoading={isGoodReviewLoading} />
       </div>
 
@@ -262,12 +272,13 @@ export default function ProductPage() {
       <div className="mb-6 p-4 border border-gray-300 rounded-lg shadow-sm bg-white">
         <p className="italic mb-2 text-gray-700">"{MOCK_SINGLE_REVIEW_FAKE}"</p>
           <button
-          onClick={() => analyzeReview(MOCK_SINGLE_REVIEW_FAKE, setIsFakeReviewLoading, setFakeReviewAnalysis)}
+          onClick={() => analyzeReview(MOCK_SINGLE_REVIEW_FAKE, setIsFakeReviewLoading, setFakeReviewAnalysis, false)}
           className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isFakeReviewLoading}
         >
           {isFakeReviewLoading ? 'Analyzing...' : 'Analyze Authenticity'}
         </button>
+        {/* --- MODIFIED: Pass isFakeReviewLoading correctly --- */}
         <AuthenticityReport analysis={fakeReviewAnalysis} isLoading={isFakeReviewLoading} />
       </div>
 
