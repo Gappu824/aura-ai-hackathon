@@ -3,31 +3,29 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd frontend/aura-ai-ui/ # Go into your frontend app directory
-        - npm install              # Install dependencies
+        # Change directory to your frontend app's root within the cloned repo
+        # Amplify will clone the repo to /codebuild/output/src/<repo-name>/
+        - cd frontend/aura-ai-ui/
+        - npm install
     build:
       commands:
-        - npm run build                      # Build your Next.js app
-        # --- START CRITICAL MODIFICATION ---
-        # Create a dedicated output directory *relative to the current working directory*
-        # This is where npm run build also operates. It will be 'frontend/aura-ai-ui/out_for_amplify'
-        - mkdir -p ./out_for_amplify
-        # Copy the built Next.js output from .next (relative to current working dir)
-        # into this new 'out_for_amplify' dir
-        - cp -R .next/* ./out_for_amplify/
-        # --- END CRITICAL MODIFICATION ---
-  # appRoot defines the base for commands in phases. This is correct.
+        - npm run build
+        # Note: The .next folder is generated inside frontend/aura-ai-ui/
+        # After 'npm run build', the current working directory is still frontend/aura-ai-ui/
+        # For deployment, Amplify needs to pick artifacts from this path.
+        # No explicit copy needed if baseDirectory is set correctly relative to the top-level repo.
+  # --- START CRITICAL MODIFICATION ---
+  # Set appRoot to the *actual* folder that contains your package.json, node_modules, .next folder.
+  # This is relative to the *repository root*.
   appRoot: frontend/aura-ai-ui
   artifacts:
-    # --- START CRITICAL MODIFICATION ---
-    # Specify the baseDirectory for artifacts relative to the *appRoot*
-    # So, Amplify will look inside 'frontend/aura-ai-ui/' for 'out_for_amplify/'
-    baseDirectory: out_for_amplify
-    # --- END CRITICAL MODIFICATION ---
+    # baseDirectory needs to be relative to the *top-level repository root*.
+    # So, it's the path from the Git repo root to the directory containing the build output.
+    baseDirectory: frontend/aura-ai-ui/.next
     files:
       - '**/*'
+  # --- END CRITICAL MODIFICATION ---
   cache:
-    # This caching path is typically relative to the repository root.
-    # It should still be fine, or could be 'frontend/aura-ai-ui/node_modules/**/*' if needed.
+    # Cache paths must also be relative to the repository root.
     paths:
-      - node_modules/**/*
+      - frontend/aura-ai-ui/node_modules/**/*
