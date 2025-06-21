@@ -3,29 +3,37 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Change directory to your frontend app's root within the cloned repo
-        # Amplify will clone the repo to /codebuild/output/src/<repo-name>/
-        - cd frontend/aura-ai-ui/
-        - npm install
+        - cd frontend/aura-ai-ui/ # Go into your Next.js app directory
+        - npm ci                   # Install dependencies
     build:
       commands:
-        - npm run build
-        # Note: The .next folder is generated inside frontend/aura-ai-ui/
-        # After 'npm run build', the current working directory is still frontend/aura-ai-ui/
-        # For deployment, Amplify needs to pick artifacts from this path.
-        # No explicit copy needed if baseDirectory is set correctly relative to the top-level repo.
-  # --- START CRITICAL MODIFICATION ---
-  # Set appRoot to the *actual* folder that contains your package.json, node_modules, .next folder.
-  # This is relative to the *repository root*.
-  appRoot: frontend/aura-ai-ui
+        - npm run build            # Build your Next.js app
+        # --- START CRITICAL MODIFICATION ---
+        # Amplify expects artifacts in /<app-root-name>/.next/ for Next.js build output.
+        # But sometimes it's finicky. Let's make sure the .next folder is exactly where Amplify needs it.
+        # Next.js builds to .next/ *relative to the current working directory (appRoot)*.
+        # So, the final built output is at $CODEBUILD_SRC_DIR/frontend/aura-ai-ui/.next
+        # We'll copy its *contents* to a new directory that Amplify can easily pick up,
+        # which is typically the base of the served content.
+
+        # The error 'Artifact directory doesn't exist: .next' means it looked for
+        # $CODEBUILD_SRC_DIR/.next and didn't find it.
+
+        # Let's create a *temp* build output directory at the repository root
+        # and copy the *contents* of your frontend's .next/ into it.
+        - mkdir -p $CODEBUILD_SRC_DIR/next_dist
+        - cp -R ./.next/* $CODEBUILD_SRC_DIR/next_dist/
+        # --- END CRITICAL MODIFICATION ---
+  appRoot: frontend/aura-ai-ui # This is the app root for the build commands
   artifacts:
-    # baseDirectory needs to be relative to the *top-level repository root*.
-    # So, it's the path from the Git repo root to the directory containing the build output.
-    baseDirectory: frontend/aura-ai-ui/.next
+    # --- START CRITICAL MODIFICATION ---
+    # This baseDirectory is now relative to the *repository root* as Amplify
+    # processes it for artifact collection.
+    # It needs to point to the directory created *at the root of the repository clone*.
+    baseDirectory: next_dist # Point to the folder we just created at repo root
+    # --- END CRITICAL MODIFICATION ---
     files:
-      - '**/*'
-  # --- END CRITICAL MODIFICATION ---
+      - '**/*' # Include all files from this baseDirectory
   cache:
-    # Cache paths must also be relative to the repository root.
     paths:
-      - frontend/aura-ai-ui/node_modules/**/*
+      - node_modules/**/* # This path is relative to the *repository root*
