@@ -18,15 +18,28 @@ const MOCK_SINGLE_REVIEW_GOOD = "I've been using this for about two weeks now. I
 const MOCK_SINGLE_REVIEW_FAKE = "Wow. This product is amazing. I love it very much. Best purchase ever. Highly recommend to everyone. Five stars.";
 
 
+// --- START MODIFICATION: Define explicit error types ---
+// Type for the successful analysis response from backend
+interface AnalysisResult {
+  authenticity_score: number;
+  reasoning: string;
+  // Note: The backend is designed to return { "error": "message" } for non-200 responses or internal LLM parsing failures.
+  // So, the 'error' field is part of the expected *data* returned by the backend in failure cases.
+  error?: string;
+}
+
+// Type for the error object that might be caught in a fetch().catch block
+// This covers standard JavaScript Error, or a custom error structure from a failed response.
+interface BackendErrorResponse {
+  error?: string;
+  detail?: string;
+  message?: string;
+}
+// --- END MODIFICATION ---
+
 export default function ProductPage() {
   const [clarityAlert, setClarityAlert] = useState<string | null>(null);
   const [isClarityLoading, setIsClarityLoading] = useState<boolean>(true);
-
-  interface AnalysisResult {
-    authenticity_score: number;
-    reasoning: string;
-    error?: string;
-  }
 
   const [goodReviewAnalysis, setGoodReviewAnalysis] = useState<AnalysisResult | null>(null);
   const [isGoodReviewLoading, setIsGoodReviewLoading] = useState<boolean>(false);
@@ -52,23 +65,28 @@ export default function ProductPage() {
         });
 
         if (!response.ok) {
-            // --- MODIFIED: Specify type for errorData ---
-            const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
-            throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
+            // Attempt to parse error message from response body, or use generic status
+            const errorData: BackendErrorResponse = await response.json().catch(() => ({ message: `HTTP status: ${response.status}` }));
+            throw new Error(errorData.error || errorData.detail || errorData.message || `API error! Status: ${response.status}`);
         }
 
-        const data: { clarity_alert: string | null; error?: string } = await response.json();
+        const data: AnalysisResult = await response.json(); // Data from backend should conform to AnalysisResult or have 'error'
         if (data.error) {
-            console.error("Clarity Alert API Error:", data.error);
+            console.error("Clarity Alert API Error (from backend):", data.error);
             setClarityAlert(`Error: ${data.error}`);
         } else {
-            setClarityAlert(data.clarity_alert);
+            setClarityAlert(data.reasoning || data.authenticity_score); // Assuming clarity alert would be a string like 'reasoning'
+                                                                      // NOTE: Our backend's clarity alert returns `clarity_alert` not `reasoning`
+                                                                      // Fixing this:
+            setClarityAlert((data as { clarity_alert: string | null }).clarity_alert);
         }
-      // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
-      } catch (error: unknown) {
-        let errorMessage = 'Network error occurred.';
-        if (error instanceof Error) {
+      // --- START MODIFICATION: Use 'unknown' and type guard for caught errors ---
+      } catch (error: unknown) { // 'unknown' is safer than 'any'
+        let errorMessage = 'Network error or unexpected API response format.';
+        if (error instanceof Error) { // Type guard to check if it's a standard Error object
             errorMessage = error.message;
+        } else if (typeof error === 'string') { // Handle cases where error might be a string
+            errorMessage = error;
         }
         console.error("Error fetching clarity alert:", error);
         setClarityAlert(`Error fetching clarity alert: ${errorMessage}`);
@@ -95,25 +113,27 @@ export default function ProductPage() {
       });
 
       if (!response.ok) {
-          // --- MODIFIED: Specify type for errorData ---
-          const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
-          throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
+          const errorData: BackendErrorResponse = await response.json().catch(() => ({ message: `HTTP status: ${response.status}` }));
+          throw new Error(errorData.error || errorData.detail || errorData.message || `API error! Status: ${response.status}`);
       }
 
       const data: AnalysisResult = await response.json();
 
       if (data.error) {
-          console.error("Authenticity API Error:", data.error);
+          console.error("Authenticity API Error (from backend):", data.error);
           if (isUserInput) setApiError(data.error);
+          // For mock examples, set a specific error object in their analysis state
           else setAnalysis({ error: data.error, authenticity_score: 0, reasoning: "" });
       } else {
           setAnalysis(data);
       }
-    // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
+    // --- START MODIFICATION: Use 'unknown' and type guard for caught errors ---
     } catch (error: unknown) {
-      let errorMessage = 'Network error occurred.';
+      let errorMessage = 'Network error or unexpected API response format.';
       if (error instanceof Error) {
           errorMessage = error.message;
+      } else if (typeof error === 'string') {
+          errorMessage = error;
       }
       console.error("Error analyzing review:", error);
       if (isUserInput) setApiError(`Failed to analyze review: ${errorMessage}`);
@@ -122,6 +142,7 @@ export default function ProductPage() {
       setLoading(false);
     }
   };
+  // --- END MODIFICATION ---
 
   const handleUserInputClarity = async () => {
     if (!userInputReview.trim()) {
@@ -141,23 +162,25 @@ export default function ProductPage() {
         });
 
         if (!response.ok) {
-            // --- MODIFIED: Specify type for errorData ---
-            const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
-            throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
+            const errorData: BackendErrorResponse = await response.json().catch(() => ({ message: `HTTP status: ${response.status}` }));
+            throw new Error(errorData.error || errorData.detail || errorData.message || `API error! Status: ${response.status}`);
         }
 
-        const data: { clarity_alert: string | null; error?: string } = await response.json();
-
+        const data: AnalysisResult = await response.json(); // Data from backend should conform to AnalysisResult or have 'error'
+                                                            // NOTE: Our backend's clarity alert returns `clarity_alert` not `reasoning`
+                                                            // Fixing this:
         if (data.error) {
             setApiError(data.error);
         } else {
-            setUserInputClarityAlert(data.clarity_alert);
+            setUserInputClarityAlert((data as { clarity_alert: string | null }).clarity_alert);
         }
-    // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
+    // --- START MODIFICATION: Use 'unknown' and type guard for caught errors ---
     } catch (error: unknown) {
         let errorMessage = 'Network error occurred.';
         if (error instanceof Error) {
             errorMessage = error.message;
+        } else if (typeof error === 'string') {
+            errorMessage = error;
         }
         console.error('User input clarity alert failed:', error);
         setApiError(`Failed to get clarity alert: ${errorMessage}`);
@@ -165,6 +188,7 @@ export default function ProductPage() {
         setIsUserInputClarityLoading(false);
     }
   };
+  // --- END MODIFICATION ---
 
 
   return (
