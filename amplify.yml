@@ -3,17 +3,26 @@ frontend:
   phases:
     preBuild:
       commands:
-        # --- REMOVED: - cd frontend/aura-ai-ui/ ---
-        - npm ci
+        - cd frontend/aura-ai-ui/ # Keep this explicit cd as it worked for preBuild phase
+        # --- START MODIFICATION ---
+        # Change 'npm ci' to 'npm install' for more leniency with package-lock.json
+        - npm install
+        # --- END MODIFICATION ---
     build:
       commands:
-        # --- REMOVED: - cd frontend/aura-ai-ui/ ---
+        # --- START MODIFICATION ---
+        # Remove redundant cd as this phase also starts from appRoot
+        # Remove the 'cd frontend/aura-ai-ui/' here if it was present
         - npm run build
-  appRoot: frontend/aura-ai-ui # This is still correct and will be the working directory for the phases
+        # --- END MODIFICATION ---
+  appRoot: frontend/aura-ai-ui # This is correct
   artifacts:
-    baseDirectory: .next
+    baseDirectory: .next # This is correct relative to appRoot
     files:
       - '**/*'
   cache:
+    # --- START MODIFICATION ---
+    # Explicitly define cache paths relative to appRoot
     paths:
-      - node_modules/**/*
+      - frontend/aura-ai-ui/node_modules/**/* # Cache node_modules relative to repo root
+    # --- END MODIFICATION ---
