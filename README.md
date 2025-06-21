@@ -17,7 +17,8 @@ Aura AI is built on a professional, scalable, and resilient serverless microserv
     * **Authenticity Engine (Advanced):** Utilizes a powerful, pre-trained **Anthropic Claude v2.1 (or Sonnet 4) LLM** via **Amazon Bedrock** ✨. This provides superior accuracy for nuanced review authenticity classification, particularly for challenging edge cases, by leveraging sophisticated prompt engineering and in-context learning.
 * **Infrastructure as Code (IaC):** The entire AWS infrastructure (Lambda, API Gateway, IAM Roles, ECR) is defined and managed using the **AWS Cloud Development Kit (CDK)** 🏗️ in Python, ensuring repeatable, auditable, and version-controlled deployments.
 
-<!-- Optional: You might place a simple architecture diagram here, e.g., an SVG or a link to a diagram. -->
+
+![Screenshot 2025-06-21 171608](https://github.com/user-attachments/assets/e9c54511-5873-406c-9511-344c943c5c65)
 
 ---
 
