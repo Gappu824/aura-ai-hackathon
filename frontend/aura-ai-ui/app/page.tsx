@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-// Assuming these components exist in your ../components directory
 import ClarityAlert from '../components/ClarityAlert';
 import AuthenticityReport from '../components/AuthenticityReport';
 
@@ -21,19 +20,14 @@ const MOCK_SINGLE_REVIEW_FAKE = "Wow. This product is amazing. I love it very mu
 
 export default function ProductPage() {
   const [clarityAlert, setClarityAlert] = useState<string | null>(null);
-  // This is used for the ClarityAlert component for mock data,
-  // ensure its prop 'isLoading' is boolean.
   const [isClarityLoading, setIsClarityLoading] = useState<boolean>(true);
 
-  // --- START FIX for @typescript-eslint/no-explicit-any ---
-  // Define the expected type for the authenticity analysis result from the backend
   interface AnalysisResult {
     authenticity_score: number;
     reasoning: string;
-    error?: string; // Backend can return an 'error' field
+    error?: string;
   }
 
-  // Use the defined interface for useState types
   const [goodReviewAnalysis, setGoodReviewAnalysis] = useState<AnalysisResult | null>(null);
   const [isGoodReviewLoading, setIsGoodReviewLoading] = useState<boolean>(false);
 
@@ -45,8 +39,7 @@ export default function ProductPage() {
   const [isUserInputAuthenticityLoading, setIsUserInputAuthenticityLoading] = useState<boolean>(false);
   const [userInputClarityAlert, setUserInputClarityAlert] = useState<string | null>(null);
   const [isUserInputClarityLoading, setIsUserInputClarityLoading] = useState<boolean>(false);
-  const [apiError, setApiError] = useState<string | null>(null); // Global error for user input section
-  // --- END FIX for @typescript-eslint/no-explicit-any ---
+  const [apiError, setApiError] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -59,21 +52,26 @@ export default function ProductPage() {
         });
 
         if (!response.ok) {
-            // Attempt to parse error message from response body, or use generic
+            // --- MODIFIED: Specify type for errorData ---
             const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
             throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
         }
 
-        const data: { clarity_alert: string | null; error?: string } = await response.json(); // Explicit type for clarity data response
+        const data: { clarity_alert: string | null; error?: string } = await response.json();
         if (data.error) {
             console.error("Clarity Alert API Error:", data.error);
-            setClarityAlert(`Error: ${data.error}`); // Display backend error in clarity alert section
+            setClarityAlert(`Error: ${data.error}`);
         } else {
             setClarityAlert(data.clarity_alert);
         }
-      } catch (error: any) { // Keeping 'any' for the catch block error itself, as its type is dynamic
+      // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
+      } catch (error: unknown) {
+        let errorMessage = 'Network error occurred.';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
         console.error("Error fetching clarity alert:", error);
-        setClarityAlert(`Error fetching clarity alert: ${error.message || 'Network error'}`);
+        setClarityAlert(`Error fetching clarity alert: ${errorMessage}`);
       } finally {
         setIsClarityLoading(false);
       }
@@ -81,7 +79,6 @@ export default function ProductPage() {
     fetchClarityAlert();
   }, []);
 
-  // --- START FIX for @typescript-eslint/no-explicit-any on function params ---
   const analyzeReview = async (
     reviewText: string,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -89,7 +86,7 @@ export default function ProductPage() {
     isUserInput: boolean = false
   ) => {
     setLoading(true);
-    if (isUserInput) setApiError(null); // Clear global error for user input
+    if (isUserInput) setApiError(null);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/analyze_review_authenticity`, {
         method: 'POST',
@@ -98,32 +95,34 @@ export default function ProductPage() {
       });
 
       if (!response.ok) {
+          // --- MODIFIED: Specify type for errorData ---
           const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
           throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
       }
 
-      const data: AnalysisResult = await response.json(); // Explicit type for authenticity data response
+      const data: AnalysisResult = await response.json();
 
       if (data.error) {
           console.error("Authenticity API Error:", data.error);
-          if (isUserInput) setApiError(data.error); // Set global error for user input section
-          // For mock examples, set a specific error object in their analysis state
+          if (isUserInput) setApiError(data.error);
           else setAnalysis({ error: data.error, authenticity_score: 0, reasoning: "" });
       } else {
           setAnalysis(data);
       }
-    } catch (error: any) { // Keeping 'any' for the catch block error itself
+    // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
+    } catch (error: unknown) {
+      let errorMessage = 'Network error occurred.';
+      if (error instanceof Error) {
+          errorMessage = error.message;
+      }
       console.error("Error analyzing review:", error);
-      if (isUserInput) setApiError(`Failed to analyze review: ${error.message || 'Network error'}`);
-      // For mock examples, set a specific error object in their analysis state
-      else setAnalysis({ error: `Failed to analyze: ${error.message || 'Network error'}`, authenticity_score: 0, reasoning: "" });
+      if (isUserInput) setApiError(`Failed to analyze review: ${errorMessage}`);
+      else setAnalysis({ error: `Failed to analyze: ${errorMessage}`, authenticity_score: 0, reasoning: "" });
     } finally {
       setLoading(false);
     }
   };
-  // --- END FIX for @typescript-eslint/no-explicit-any on function params ---
 
-  // --- START FIX for @typescript-eslint/no-explicit-any on function params (Clarity) ---
   const handleUserInputClarity = async () => {
     if (!userInputReview.trim()) {
         setApiError('Please enter a review for clarity analysis.');
@@ -142,25 +141,30 @@ export default function ProductPage() {
         });
 
         if (!response.ok) {
+            // --- MODIFIED: Specify type for errorData ---
             const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
             throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
         }
 
-        const data: { clarity_alert: string | null; error?: string } = await response.json(); // Explicit type for clarity data response
+        const data: { clarity_alert: string | null; error?: string } = await response.json();
 
         if (data.error) {
             setApiError(data.error);
         } else {
             setUserInputClarityAlert(data.clarity_alert);
         }
-    } catch (error: any) {
+    // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
+    } catch (error: unknown) {
+        let errorMessage = 'Network error occurred.';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
         console.error('User input clarity alert failed:', error);
-        setApiError(`Failed to get clarity alert: ${error.message || 'Network error occurred.'}`);
+        setApiError(`Failed to get clarity alert: ${errorMessage}`);
     } finally {
         setIsUserInputClarityLoading(false);
     }
   };
-  // --- END FIX for @typescript-eslint/no-explicit-any on function params (Clarity) ---
 
 
   return (
@@ -210,7 +214,6 @@ export default function ProductPage() {
         {userInputAuthenticityAnalysis && (
             <div className="mt-8 p-6 border border-gray-300 rounded-lg shadow-lg bg-white text-gray-800">
                 <h3 className="text-xl font-bold mb-4 text-blue-700">Your Review Authenticity Analysis:</h3>
-                {/* --- START FIX for react/no-unescaped-entities and robust analysis display --- */}
                 {userInputAuthenticityAnalysis.error ? (
                     <p className="text-red-600">Error: {userInputAuthenticityAnalysis.error}</p>
                 ) : (
@@ -235,24 +238,20 @@ export default function ProductPage() {
                         </p>
                     </>
                 )}
-                {/* --- END FIX --- */}
             </div>
         )}
 
-        {/* User Input Clarity Alert Results */}
         {userInputClarityAlert && (
             <div className="mt-6 p-6 border border-gray-300 rounded-lg shadow-lg bg-white text-gray-800">
                 <h3 className="text-xl font-bold mb-4 text-purple-700">Your Review Clarity Alert:</h3>
                 <p className="text-lg">{userInputClarityAlert}</p>
             </div>
         )}
-      </div> {/* End User Input Section */}
+      </div>
 
-      <h1 className="text-3xl font-bold mb-2 mt-10 text-center text-gray-800">Product Review Examples</h1> {/* Separator */}
+      <h1 className="text-3xl font-bold mb-2 mt-10 text-center text-gray-800">Product Review Examples</h1>
       <p className="mb-6 text-gray-600 text-center">See how the AI analyzes pre-defined review scenarios.</p>
 
-      {/* --- Clarity Engine (Existing Mock Data Call) --- */}
-      {/* Moved this section for better flow: User input first, then examples */}
       <div className="mb-10 p-6 border border-gray-300 rounded-lg shadow-md bg-white">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Overall Product Review Clarity Analysis</h2>
         <ClarityAlert alertText={clarityAlert} isLoading={isClarityLoading} />
@@ -260,14 +259,10 @@ export default function ProductPage() {
 
       <hr className="my-8" />
 
-      {/* --- Authenticity Engine (Existing Mock Data Calls) --- */}
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Authenticity Analysis of Example Reviews</h2>
 
-      {/* Good Review Example */}
       <div className="mb-6 p-4 border border-gray-300 rounded-lg shadow-sm bg-white">
-        {/* --- START FIX for react/no-unescaped-entities --- */}
         <p className="italic mb-2 text-gray-700">{MOCK_SINGLE_REVIEW_GOOD}</p>
-        {/* --- END FIX --- */}
         <button
           onClick={() => analyzeReview(MOCK_SINGLE_REVIEW_GOOD, setIsGoodReviewLoading, setGoodReviewAnalysis, false)}
           className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
@@ -278,11 +273,8 @@ export default function ProductPage() {
         <AuthenticityReport analysis={goodReviewAnalysis} isLoading={isGoodReviewLoading} />
       </div>
 
-      {/* Fake Review Example */}
       <div className="mb-6 p-4 border border-gray-300 rounded-lg shadow-sm bg-white">
-        {/* --- START FIX for react/no-unescaped-entities --- */}
         <p className="italic mb-2 text-gray-700">{MOCK_SINGLE_REVIEW_FAKE}</p>
-        {/* --- END FIX --- */}
           <button
           onClick={() => analyzeReview(MOCK_SINGLE_REVIEW_FAKE, setIsFakeReviewLoading, setFakeReviewAnalysis, false)}
           className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
