@@ -1,10 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    async rewrites() {
-      return [{
-        source: '/api/v1/:path*',
-        destination: 'http://127.0.0.1:5001/api/v1/:path*',
-      }];
+    // Remove 'output: "export"' or set to default if present
+    // output: 'standalone', // Optional: for smaller Docker image, but default is fine
+
+    env: {
+        // This variable will be picked up by Next.js at build time.
+        // Replace with your ACTUAL API Gateway URL.
+        NEXT_PUBLIC_API_URL: 'https://nm8a6zynv9.execute-api.us-east-1.amazonaws.com',
     },
-  };
-  export default nextConfig;
+    // Remove 'rewrites' here as they are not typically used with App Runner proxying directly to a separate API.
+};
+export default nextConfig;
