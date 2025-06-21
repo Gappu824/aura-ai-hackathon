@@ -7,12 +7,10 @@ frontend:
     build:
       commands:
         - npm run build
-  # --- IMPORTANT: This is the key change ---
-  # Tells Amplify that your frontend app's root is in the 'frontend' directory
-  appRoot: frontend
+  # --- CRITICAL CHANGE: Correct appRoot ---
+  appRoot: frontend/aura-ai-ui # This now points to the correct subdirectory
   # ---
   artifacts:
-    # Tells Amplify where the build output (relative to appRoot) is
     baseDirectory: .next
     files:
       - '**/*'
