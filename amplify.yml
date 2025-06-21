@@ -7,17 +7,15 @@ frontend:
         - npm install
     build:
       commands:
-        # No 'cd' here, as the build command should now run relative to appRoot set below
         - npm run build
-  appRoot: frontend/aura-ai-ui # This is correct for how build commands are executed
+  appRoot: frontend/aura-ai-ui # This correctly sets the working directory for phases
   artifacts:
     # --- START MODIFICATION ---
-    # Specify the full relative path to .next from the *repository root*
-    baseDirectory: frontend/aura-ai-ui/.next
+    # Change baseDirectory to just .next, as appRoot handles the subdirectory.
+    baseDirectory: .next
     # --- END MODIFICATION ---
     files:
       - '**/*'
   cache:
-    # This caching path is typically relative to the repository root, so it should be fine.
     paths:
       - node_modules/**/*
