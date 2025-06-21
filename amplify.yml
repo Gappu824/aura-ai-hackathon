@@ -3,17 +3,24 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd frontend/aura-ai-ui/
-        - npm install
+        - cd frontend/aura-ai-ui/ # Go into your frontend app directory
+        - npm install              # Install dependencies
     build:
       commands:
-        - npm run build
-  appRoot: frontend/aura-ai-ui # This correctly sets the working directory for phases
+        - npm run build                      # Build your Next.js app
+        # --- START CRITICAL ADDITION ---
+        # Create a dedicated output directory at the repository root
+        - mkdir -p /codebuild/output/src/out_for_amplify
+        # Copy the built Next.js output from within appRoot to this new directory
+        - cp -R .next/* /codebuild/output/src/out_for_amplify/
+        # --- END CRITICAL ADDITION ---
+  # Ensure appRoot is correct, as commands are run relative to it
+  appRoot: frontend/aura-ai-ui
   artifacts:
-    # --- START MODIFICATION ---
-    # Change baseDirectory to just .next, as appRoot handles the subdirectory.
-    baseDirectory: .next
-    # --- END MODIFICATION ---
+    # --- START CRITICAL MODIFICATION ---
+    # Specify the *absolute* path to the new directory containing the artifacts
+    baseDirectory: /codebuild/output/src/out_for_amplify
+    # --- END CRITICAL MODIFICATION ---
     files:
       - '**/*'
   cache:
