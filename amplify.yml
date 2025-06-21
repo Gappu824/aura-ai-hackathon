@@ -3,15 +3,21 @@ frontend:
   phases:
     preBuild:
       commands:
+        # --- START MODIFICATION ---
+        # Explicitly change directory into your frontend application's root
+        - cd frontend/aura-ai-ui/
         - npm ci
+        # --- END MODIFICATION ---
     build:
       commands:
+        # --- START MODIFICATION ---
+        # Ensure build command also runs from the correct directory
+        - cd frontend/aura-ai-ui/
         - npm run build
-  # --- CRITICAL CHANGE: Correct appRoot ---
-  appRoot: frontend/aura-ai-ui # This now points to the correct subdirectory
-  # ---
+        # --- END MODIFICATION ---
+  appRoot: frontend/aura-ai-ui # This is still correct for Amplify's internal path mapping
   artifacts:
-    baseDirectory: .next
+    baseDirectory: .next # This remains correct relative to appRoot
     files:
       - '**/*'
   cache:
