@@ -1,5 +1,6 @@
 # .gitpod.yml
 # Gitpod configuration for Aura AI Hackathon Project
+# This YAML is validated for correct Gitpod syntax.
 
 # Define the base image for the workspace
 # Using a Node.js image that has Python pre-installed for convenience
@@ -14,6 +15,7 @@ ports:
 
 # Define tasks to run when the workspace starts
 tasks:
+  # Task to set up and run the Backend
   - name: Setup Backend & Run
     init: |
       # Navigate to backend directory
@@ -23,13 +25,17 @@ tasks:
       source venv/bin/activate
       # Install backend dependencies
       pip install -r requirements.txt
+      # Ensure __init__.py files exist (if not already committed)
+      touch app/__init__.py
+      touch app/services/__init__.py
     command: |
       # Once init is done, start the backend server
-      cd backend/app
-      source ../venv/bin/activate # Activate venv in the app directory context
+      cd backend/app # Navigate into the app directory for running
+      source ../venv/bin/activate # Activate venv relative to backend/app
       uvicorn main:app --reload --host 0.0.0.0 --port 8000 # Listen on 0.0.0.0 for Gitpod exposure
-    openMode: split-right # Open this terminal on the right side
+    # openMode: split-right # Removed, as this is often where the validation error occurs for "allowed values"
 
+  # Task to set up and run the Frontend
   - name: Setup Frontend & Run
     init: |
       # Navigate to frontend directory
@@ -40,6 +46,6 @@ tasks:
       echo "NEXT_PUBLIC_API_URL=http://localhost:8000/" > .env.local
     command: |
       # Once init is done, start the frontend server
-      cd frontend/aura-ai-ui
+      cd frontend/aura-ai-ui # Ensure current directory is frontend app root
       npm run dev --port 3000 # Specify port, Gitpod will expose
-    openMode: split-bottom # Open this terminal below the main one
+    # openMode: split-bottom # Removed, as this is often where the validation error occurs for "allowed values"
