@@ -1,13 +1,35 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-    // Remove 'output: "export"' or set to default if present
-    // output: 'standalone', // Optional: for smaller Docker image, but default is fine
+// --- START CRITICAL MODIFICATION ---
+// Import dotenv and fs for ES Module compatibility
+import dotenv from 'dotenv';
+import path from 'path'; // Node.js path module
+import fs from 'fs';     // Node.js file system module
+import { fileURLToPath } from 'url'; // For __dirname equivalent in ESM
 
-    env: {
-        // This variable will be picked up by Next.js at build time.
-        // Replace with your ACTUAL API Gateway URL.
-        NEXT_PUBLIC_API_URL: 'https://nm8a6zynv9.execute-api.us-east-1.amazonaws.com',
+// Get current directory equivalent in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env.production
+const envPath = path.resolve(__dirname, '.env.production');
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
+// --- END CRITICAL MODIFICATION ---
+
+const nextConfig = {
+    output: 'standalone',
+
+    // No 'env' block here. `dotenv.config()` will populate process.env
+    // which Next.js will then read for public variables implicitly.
+
+    async rewrites() {
+      return [
+        {
+          source: '/api/v1/:path*',
+          destination: `${process.env.BACKEND_API_URL}/api/v1/:path*`, // Expects BACKEND_API_URL to be set
+        },
+      ];
     },
-    // Remove 'rewrites' here as they are not typically used with App Runner proxying directly to a separate API.
 };
 export default nextConfig;

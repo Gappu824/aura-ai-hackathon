@@ -44,15 +44,22 @@ export default function ProductPage() {
 
   useEffect(() => {
     const fetchClarityAlert = async () => {
+      // Ensure the environment variable is available before fetching
+      if (!process.env.NEXT_PUBLIC_API_URL) {
+        setClarityAlert("Configuration error: API URL is not defined.");
+        setIsClarityLoading(false);
+        return;
+      }
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/generate_clarity_alert`, {
+        // --- MODIFIED: Using environment variable for the API call ---
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/v1/generate_clarity_alert`, {
+        // --- END MODIFICATION ---
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reviews: MOCK_REVIEWS }),
         });
 
         if (!response.ok) {
-            // --- MODIFIED: Specify type for errorData ---
             const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
             throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
         }
@@ -64,7 +71,6 @@ export default function ProductPage() {
         } else {
             setClarityAlert(data.clarity_alert);
         }
-      // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
       } catch (error: unknown) {
         let errorMessage = 'Network error occurred.';
         if (error instanceof Error) {
@@ -76,7 +82,8 @@ export default function ProductPage() {
         setIsClarityLoading(false);
       }
     };
-    fetchClarityAlert();
+    
+    fetchClarityAlert(); 
   }, []);
 
   const analyzeReview = async (
@@ -87,15 +94,23 @@ export default function ProductPage() {
   ) => {
     setLoading(true);
     if (isUserInput) setApiError(null);
+    if (!process.env.NEXT_PUBLIC_API_URL) {
+      const errorMsg = "Configuration error: API URL is not defined.";
+      if (isUserInput) setApiError(errorMsg);
+      else setAnalysis({ error: errorMsg, authenticity_score: 0, reasoning: "" });
+      setLoading(false);
+      return;
+    }
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/analyze_review_authenticity`, {
+      // --- MODIFIED: Using environment variable for the API call ---
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/v1/analyze_review_authenticity`, {
+      // --- END MODIFICATION ---
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ review_text: reviewText }),
       });
 
       if (!response.ok) {
-          // --- MODIFIED: Specify type for errorData ---
           const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
           throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
       }
@@ -109,7 +124,6 @@ export default function ProductPage() {
       } else {
           setAnalysis(data);
       }
-    // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
     } catch (error: unknown) {
       let errorMessage = 'Network error occurred.';
       if (error instanceof Error) {
@@ -133,15 +147,22 @@ export default function ProductPage() {
     setUserInputClarityAlert(null);
     setUserInputAuthenticityAnalysis(null);
 
+    if (!process.env.NEXT_PUBLIC_API_URL) {
+        setApiError("Configuration error: API URL is not defined.");
+        setIsUserInputClarityLoading(false);
+        return;
+    }
+
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/generate_clarity_alert`, {
+      // --- MODIFIED: Using environment variable for the API call ---
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/v1/generate_clarity_alert`, {
+      // --- END MODIFICATION ---
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ reviews: [userInputReview] }),
         });
 
         if (!response.ok) {
-            // --- MODIFIED: Specify type for errorData ---
             const errorData: { error?: string; detail?: string; message?: string } = await response.json().catch(() => ({ message: `Server error: ${response.status}` }));
             throw new Error(errorData.error || errorData.detail || errorData.message || `HTTP error! Status: ${response.status}`);
         }
@@ -153,7 +174,6 @@ export default function ProductPage() {
         } else {
             setUserInputClarityAlert(data.clarity_alert);
         }
-    // --- MODIFIED: Specify type for catch block error (use 'unknown' and then type guard) ---
     } catch (error: unknown) {
         let errorMessage = 'Network error occurred.';
         if (error instanceof Error) {

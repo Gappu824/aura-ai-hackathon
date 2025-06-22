@@ -1,34 +1,43 @@
-# Use an official Node.js image as the base
-FROM node:18-alpine AS builder
+# Stage 1: Dependency Installation & Build
+FROM node:18 AS builder
 
-# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json (or yarn.lock)
+# Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
+# --- START CRITICAL MODIFICATION ---
+# Copy .env.production into the build context for dotenv to pick up
+COPY .env.production ./.env.production
+# --- END CRITICAL MODIFICATION ---
+
 # Install dependencies
-RUN npm ci --prefer-offline --no-audit
+RUN npm install
 
 # Copy the rest of your application code
 COPY . .
 
+# Set NODE_ENV for production build
+ENV NODE_ENV production
+
 # Build the Next.js application
 RUN npm run build
 
-# Production stage
-FROM node:18-alpine
+# Stage 2: Production Runtime
+FROM node:18
 
 WORKDIR /app
 
-# Copy only the necessary build output for a smaller image
+# Copy built artifacts
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-# Expose the port that Next.js will listen on (App Runner will set $PORT)
+# CRITICAL: Set the environment variable for runtime
+# This value will be provided by App Runner during service creation.
+ENV NEXT_PUBLIC_API_URL=__APP_RUNNER_API_URL_RUNTIME_PLACEHOLDER__ 
+
 EXPOSE 3000
 
-# Define the command to run your Next.js application
 CMD ["npm", "run", "start"]
