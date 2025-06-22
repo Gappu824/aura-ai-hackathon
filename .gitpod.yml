@@ -1,0 +1,45 @@
+# .gitpod.yml
+# Gitpod configuration for Aura AI Hackathon Project
+
+# Define the base image for the workspace
+# Using a Node.js image that has Python pre-installed for convenience
+image: gitpod/workspace-full-nodejs
+
+# Configure ports and how they are exposed
+ports:
+  - port: 8000 # Backend FastAPI
+    onOpen: ignore # Don't open automatically, we'll open frontend
+  - port: 3000 # Frontend Next.js Dev Server
+    onOpen: open-browser # Automatically open the browser to the frontend
+
+# Define tasks to run when the workspace starts
+tasks:
+  - name: Setup Backend & Run
+    init: |
+      # Navigate to backend directory
+      cd backend
+      # Create and activate Python virtual environment
+      python3 -m venv venv
+      source venv/bin/activate
+      # Install backend dependencies
+      pip install -r requirements.txt
+    command: |
+      # Once init is done, start the backend server
+      cd backend/app
+      source ../venv/bin/activate # Activate venv in the app directory context
+      uvicorn main:app --reload --host 0.0.0.0 --port 8000 # Listen on 0.0.0.0 for Gitpod exposure
+    openMode: split-right # Open this terminal on the right side
+
+  - name: Setup Frontend & Run
+    init: |
+      # Navigate to frontend directory
+      cd frontend/aura-ai-ui
+      # Install frontend dependencies
+      npm install
+      # Create .env.local for frontend to connect to local backend
+      echo "NEXT_PUBLIC_API_URL=http://localhost:8000/" > .env.local
+    command: |
+      # Once init is done, start the frontend server
+      cd frontend/aura-ai-ui
+      npm run dev --port 3000 # Specify port, Gitpod will expose
+    openMode: split-bottom # Open this terminal below the main one
