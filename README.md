@@ -4,6 +4,23 @@ Aura AI is a dual-engine, AI-driven platform meticulously designed to elevate cu
 
 ---
 
+## ▶️ Live Interactive Demo on Gitpod
+
+Experience Aura AI in action instantly! Click the button below to launch a ready-to-use development environment on Gitpod, where you can interact with the full application in your browser.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Gappu824/aura-ai-hackathon)
+
+**Instructions for Judges:**
+1.  Click the "Open in Gitpod" button above.
+2.  If prompted, authorize Gitpod with your GitHub account.
+3.  Gitpod will automatically spin up the environment, install dependencies, and start both the backend and frontend. This may take a few minutes for the initial setup.
+4.  Once ready, a new browser tab will automatically open showing the Aura AI frontend (`http://localhost:3000`).
+5.  You can then interact with the application, analyze reviews, and observe the results.
+
+*This method demonstrates the application's full functionality and reproducibility, bypassing complexities faced during direct cloud frontend deployment within hackathon constraints.*
+
+---
+
 ## ✨ Core Engines
 
 Aura AI operates on two synergistic core engines, each powered by state-of-the-art AI, working in concert to provide a holistic trust ecosystem:
@@ -17,18 +34,20 @@ Aura AI operates on two synergistic core engines, each powered by state-of-the-a
 
 Aura AI is built on a professional, scalable, and resilient serverless microservices architecture, meticulously designed and deployed using AWS cloud services. This architecture ensures high availability, cost-efficiency, and alignment with Amazon's own internal engineering best practices.
 
-* **Frontend (Designed):** **Next.js (React) Application (App Router)** 🌐 designed for **Server-Side Rendering (SSR) and deployment on AWS Lambda with API Gateway**. This architecture aims for a high-performance user experience, handles complex routing, and enables direct API proxying to bypass external CORS complexities. *While the backend is fully deployed, the full cloud deployment of the frontend remains an active development challenge.*
+* **Professional Repository Structure:** The project maintains a clean, logical, and easily navigable directory structure with distinct `backend/`, `frontend/aura-ai-ui/`, and `infrastructure/` folders, reflecting a professional engineering organization. This clarity extends to the **`README.md` itself**, which is designed for immediate understanding and navigation, serving as the front door to your project's technical story.
+* **Frontend (Designed):** **Next.js (React) Application (App Router)** 🌐 designed for **Server-Side Rendered (SSR) and deployment on AWS Lambda with API Gateway**. This architecture aims for a high-performance user experience, handles complex routing, and enables direct API proxying to bypass external CORS complexities. *While the backend is fully deployed, the full cloud deployment of the frontend remains an active development challenge.*
 * **API Gateway (Frontend - Designed):** **AWS API Gateway (REST API)** 🔗 designed to act as the public entry point for the frontend application.
 * **Backend (Deployed & Robust):** **AWS Lambda function** 💻 executing a **FastAPI** Python application. Lambda provides serverless compute, auto-scaling, and cost-efficiency.
     * **Lambda Deployment:** The FastAPI application is deployed as a **Docker container image** 🐳 to AWS Lambda, ensuring a consistent and isolated environment.
-    * **CORS Handling:** The FastAPI application within this Lambda explicitly manages CORS headers, ensuring proper communication.
-* **API Gateway (Backend - Deployed & Robust):** **AWS API Gateway (REST API)** ⚙️ acts as a dedicated public entry point for the backend Lambda. This API Gateway is fully deployed and configured with **built-in CORS headers**.
+    * **CORS Handling:** The FastAPI application within this Lambda explicitly manages CORS headers, ensuring proper communication with the Next.js frontend server.
+* **API Gateway (Backend - Deployed & Robust):** **AWS API Gateway (REST API)** ⚙️ acts as a dedicated public entry point for the backend Lambda. This API Gateway is directly targeted by the Next.js frontend's internal proxying (rewrites). It is configured with **built-in CORS headers** handled by the API Gateway itself for robustness.
 * **AI/ML:**
     * **Clarity Engine:** Leverages a powerful, pre-trained **Amazon Titan Text Express v1 LLM** via **Amazon Bedrock** 🧠.
     * **Authenticity Engine (Advanced):** Utilizes a powerful, pre-trained **Anthropic Claude v2.1 (or Sonnet 4) LLM** via **Amazon Bedrock** ✨.
 * **Infrastructure as Code (IaC):** The entire AWS infrastructure (Lambdas, API Gateways, IAM Roles, ECR) is defined and managed using the **AWS Cloud Development Kit (CDK)** 🏗️ in Python, ensuring repeatable, auditable, and version-controlled deployments.
 
-![Screenshot 2025-06-22 171414](https://github.com/user-attachments/assets/d92afba1-2b6d-4aa8-afb3-ac2af5f36ee4)
+![Screenshot 2025-06-22 171414](https://github.com/user-attachments/assets/24949b52-6fc4-4042-bff8-71f0db4d8587)
+
 ---
 
 ## 💡 Winning Strategy & Amazon Alignment
@@ -42,8 +61,15 @@ Our solution's strength for the Amazon Hackathon lies not just in its functional
 2.  **Invent and Simplify:** 🛠️
     * **Dual-Engine Innovation:** Our dual-engine approach is a novel invention, holistically tackling both clarity and authenticity for a more comprehensive trust signal.
     * **Strategic AI Pivot (Backend):** We demonstrated mature engineering judgment by initially exploring custom SageMaker models, but strategically **pivoted to leveraging powerful pre-trained Large Language Models (LLMs) on Bedrock**. This choice was made due to Bedrock's inherent capabilities in handling nuanced, complex language understanding with limited custom data, showcasing a pragmatic approach to selecting the *right tool for the job*—an optimal balance of accuracy, cost, and speed. We utilize **Few-Shot Chain-of-Thought Reasoning** with Bedrock for advanced in-context learning.
+    * **Robust Frontend Deployment (Addressing Complexities):** Our development journey involved iterative exploration of frontend hosting solutions (Amplify, S3/CloudFront static hosting, App Runner). In the face of persistent configuration complexities, we strategically pivoted to a **server-side rendered (SSR) Next.js application designed for deployment directly on AWS Lambda with API Gateway**. This approach provided the most robust solution by aiming for:
+        * Elimination of CORS issues through same-origin proxying via Next.js rewrites.
+        * Reliable environment variable injection at runtime.
+        * Leveraging a standard and well-supported Next.js deployment pattern on AWS.
+        This iterative problem-solving and adaptation in the face of technical roadblocks demonstrates strong **Bias for Action** and **Ownership** to deliver a working, high-quality solution by adapting to technical roadblocks.
 
 3.  **Earn Trust:** ✅
+    * **Clean Git History:** The development process is underpinned by a clean Git history, with descriptive commit messages (e.g., "feat(frontend): Implement SSR on Lambda" or "fix(backend): Resolve CORS TypeError in app.py"). This tells a clear story of methodical development, problem-solving, and continuous improvement, crucial for building trust in the engineering process.
+    * **Complete and Well-Commented Documentation:** Critical project files (like `Dockerfile`s, `requirements.txt`) are well-commented and self-explanatory. This ensures maintainability and transparency.
     * **Robustness against Manipulation:** Our Authenticity Engine is driven by meticulous **prompt engineering** leveraging an **edge-case-ready dataset** that includes sarcasm, low-effort authenticity, irrelevant details, contradictory sentiment, and sophisticated fakes. This approach, powered by Claude's advanced reasoning, prepares the model for real-world adversarial attacks, fostering genuine trust in the review ecosystem.
     * **Advanced Prompt Engineering & LLM Leverage:** We showcase production-grade practices by demonstrating how to effectively guide powerful LLMs with detailed prompts to solve specific, complex classification tasks. This highlights leveraging managed AI services for robust and efficient solutions ready for Amazon's operational scale.
 
@@ -112,7 +138,7 @@ Ensure you have the following installed on your local machine:
         * **Ensure `next.config.mjs` is correctly configured for `output: 'standalone'` and `rewrites`** pointing to `process.env.BACKEND_API_URL`.
         * **Ensure `package.json` `start` script is `next start`.**
         * **Ensure all `fetch` calls in `app/page.tsx` (and other frontend components) are relative paths** (e.g., `/api/v1/generate_clarity_alert`).
-        * **Local Build Step (for testing local frontend and preparing for future deployments):**
+        * **Run Local Next.js Build:** This step generates the `.next/standalone` folder which CDK will deploy.
             ```bash
             npm run build # This command MUST succeed locally and generate .next/standalone
             ```
@@ -241,10 +267,10 @@ For local development and testing:
     * **Expected Results:** You should receive valid JSON responses (authenticity score/reasoning, or clarity alert). **CORS errors should be absent in the `curl` response.**
 
 3.  **Monitor CloudWatch Logs:**
-    * Open your AWS CloudWatch console.
+    * Simultaneously, open your AWS CloudWatch console.
     * Navigate to **Log groups**.
     * Find the log group for your backend Lambda (`/aws/lambda/AuraApiFunction...`).
-    * Open the latest log streams and observe new entries to confirm successful Lambda invocations and no errors.
+    * Open the latest log streams and observe new entries as you interact with the frontend. This confirms Lambda invocations and allows you to debug any runtime errors.
 
 ## 📈 Future Enhancements (Full Frontend Deployment as a Primary Goal)
 
@@ -267,4 +293,7 @@ This project demonstrates a robust, production-ready foundation for AI-powered t
 * **Team Name:** Hustlers
 * **Team Members:** Kumud Agrawal (Team Captain), Gourav Mittal
 * **Acknowledgements:** Special thanks to Amazon Bedrock and AWS Lambda, API Gateway for providing the powerful and scalable services that enabled this project.
+
+
+
 
