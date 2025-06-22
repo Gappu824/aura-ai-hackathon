@@ -4,22 +4,8 @@ Aura AI is a dual-engine, AI-driven platform meticulously designed to elevate cu
 
 ---
 
-## ▶️ Live Interactive Demo on Gitpod
+https://github.com/user-attachments/assets/80bf9cac-fb53-4f6d-bdc4-ee106b6a0476
 
-Experience Aura AI in action instantly! Click the button below to launch a ready-to-use development environment on Gitpod, where you can interact with the full application in your browser.
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Gappu824/aura-ai-hackathon)
-
-**Instructions for Judges:**
-1.  Click the "Open in Gitpod" button above.
-2.  If prompted, authorize Gitpod with your GitHub account.
-3.  Gitpod will automatically spin up the environment, install dependencies, and start both the backend and frontend. This may take a few minutes for the initial setup.
-4.  Once ready, a new browser tab will automatically open showing the Aura AI frontend (`http://localhost:3000`).
-5.  You can then interact with the application, analyze reviews, and observe the results.
-
-*This method demonstrates the application's full functionality and reproducibility, bypassing complexities faced during direct cloud frontend deployment within hackathon constraints.*
-
----
 
 ## ✨ Core Engines
 

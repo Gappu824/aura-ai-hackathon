@@ -1,53 +1,35 @@
-# .gitpod.yml
-# Gitpod configuration for Aura AI Hackathon Project
+image: python:3.10
 
-# Define the base image for the workspace
-# Using a Node.js image that also has Python pre-installed for convenience.
-# This is a public image, so 'pull access denied' should NOT occur with this.
-image: gitpod/workspace-full-nodejs
-
-# Configure ports and how they are exposed within the Gitpod workspace
 ports:
-  - port: 8000 # Backend FastAPI server port
-    onOpen: ignore # Do not open this port automatically in a new browser tab
-  - port: 3000 # Frontend Next.js dev server port
-    onOpen: open-browser # Automatically open the browser to the frontend URL
+  - port: 8000
+    onOpen: ignore           # FastAPI backend
+  - port: 3000
+    onOpen: open-browser     # Next.js frontend
 
-# Define tasks to run when the workspace starts
 tasks:
-  - name: Setup Backend & Run
+  - name: Setup and Run Backend + Frontend
     init: |
-      # Navigate to the backend directory
+      # Setup backend
       cd backend
-      # Create and activate Python virtual environment
       python3 -m venv venv
       source venv/bin/activate
-      # Install backend dependencies
       pip install -r requirements.txt
-      # Ensure __init__.py files exist for Python package recognition (crucial for imports)
       touch app/__init__.py
       touch app/services/__init__.py
-    command: |
-      # Once the 'init' phase is complete, start the backend server
-      cd backend/app # Navigate into the backend's application directory
-      source ../venv/bin/activate # Activate the virtual environment from the parent directory
-      # Start Uvicorn, listening on 0.0.0.0 for Gitpod to expose it
-      uvicorn main:app --reload --host 0.0.0.0 --port 8000
-    # Optional: openMode property is typically removed to avoid validation errors,
-    # as global 'ports' settings handle browser opening.
+      cd ..
 
-  - name: Setup Frontend & Run
-    init: |
-      # Navigate to the frontend directory
+      # Setup frontend
       cd frontend/aura-ai-ui
-      # Install frontend Node.js dependencies
       npm install
-      # Create .env.local file with the local backend URL for the frontend
-      # This allows the frontend (localhost:3000) to communicate with the backend (localhost:8000)
       echo "NEXT_PUBLIC_API_URL=http://localhost:8000/" > .env.local
+      cd ../../
+
     command: |
-      # Once the 'init' phase is complete, start the frontend dev server
-      cd frontend/aura-ai-ui # Ensure current directory is the frontend app root
-      # Start Next.js dev server, specifying the port
+      # Run backend in background
+      cd backend/app
+      source ../venv/bin/activate
+      uvicorn main:app --reload --host 0.0.0.0 --port 8000 &
+
+      # Run frontend in foreground
+      cd ../../frontend/aura-ai-ui
       npm run dev --port 3000
-    # Optional: openMode property is typically removed.
