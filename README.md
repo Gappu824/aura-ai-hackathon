@@ -238,9 +238,9 @@ Your deployed **Backend API** exposes the following REST API endpoints. The fron
 For local development and testing:
 
 1.  **Start Backend (FastAPI):**
-    * Navigate to `backend/app` directory: `cd backend/app`
+    * Navigate to `backend` directory: `cd backend`
     * Activate virtual environment: `.\venv\Scripts\activate` (Windows) or `source venv/bin/activate` (Linux/macOS)
-    * Run Uvicorn server: `uvicorn main:app --reload`
+    * Run Uvicorn server: ` uvicorn app.main:app --reload`
     * The API will be available at `http://127.0.0.1:8000`.
 
 2.  **Start Frontend (Next.js):**
