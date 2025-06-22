@@ -2,29 +2,39 @@ image: python:3.10
 
 ports:
   - port: 8000
+    name: Backend
+    description: The Python backend server.
     onOpen: ignore
   - port: 3000
-    onOpen: open-browser
+    name: Frontend
+    description: The Next.js frontend application.
+    onOpen: open-preview
 
 tasks:
   - name: Backend
-    init: |
+    before: |
+      echo "--- Setting up Backend ---"
       cd backend
       python3 -m venv venv
       source venv/bin/activate
       pip install -r requirements.txt
       touch app/__init__.py
       touch app/services/__init__.py
+      echo "--- Backend setup complete ---"
     command: |
-      cd backend/app
-      source ../venv/bin/activate
-      uvicorn main:app --reload --host 0.0.0.0 --port 8000
+      echo "--- Starting Backend Server ---"
+      cd backend
+      source venv/bin/activate
+      uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
   - name: Frontend
-    init: |
+    before: |
+      echo "--- Setting up Frontend ---"
       cd frontend/aura-ai-ui
       npm install
-      echo "NEXT_PUBLIC_API_URL=http://localhost:8000/" > .env.local
+      echo "NEXT_PUBLIC_API_URL=$(gp url 8000)/" > .env.local
+      echo "--- Frontend setup complete ---"
     command: |
+      echo "--- Starting Frontend Server ---"
       cd frontend/aura-ai-ui
       npm run dev --port 3000
