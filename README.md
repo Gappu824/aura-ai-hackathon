@@ -2,10 +2,9 @@
 
 Aura AI is a dual-engine, AI-driven platform meticulously designed to elevate customer trust and confidence in online marketplaces, mirroring Amazon's commitment to customer obsession. It marks a paradigm shift from reactive defense to **proactive assurance**, enhancing the clarity of every purchase decision and securing the marketplace from sophisticated fraud. This project was developed for the **HackOn with Amazon - Season 5** competition.
 
+https://github.com/user-attachments/assets/8779f18e-f2c1-4dd3-99a3-37e24dd70738
+
 ---
-
-https://github.com/user-attachments/assets/80bf9cac-fb53-4f6d-bdc4-ee106b6a0476
-
 
 ## ✨ Core Engines
 
