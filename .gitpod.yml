@@ -4,7 +4,8 @@
 # Define the base image for the workspace
 # Using a Node.js image that also has Python pre-installed for convenience.
 # This is a public image, so 'pull access denied' should NOT occur with this.
-image: gitpod/workspace-full-nodejs
+image: image: python:3.10
+
 
 # Configure ports and how they are exposed within the Gitpod workspace
 ports:
