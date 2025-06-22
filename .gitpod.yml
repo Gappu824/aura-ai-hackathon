@@ -1,51 +1,53 @@
 # .gitpod.yml
 # Gitpod configuration for Aura AI Hackathon Project
-# This YAML is validated for correct Gitpod syntax.
 
 # Define the base image for the workspace
-# Using a Node.js image that has Python pre-installed for convenience
+# Using a Node.js image that also has Python pre-installed for convenience.
+# This is a public image, so 'pull access denied' should NOT occur with this.
 image: gitpod/workspace-full-nodejs
 
-# Configure ports and how they are exposed
+# Configure ports and how they are exposed within the Gitpod workspace
 ports:
-  - port: 8000 # Backend FastAPI
-    onOpen: ignore # Don't open automatically, we'll open frontend
-  - port: 3000 # Frontend Next.js Dev Server
-    onOpen: open-browser # Automatically open the browser to the frontend
+  - port: 8000 # Backend FastAPI server port
+    onOpen: ignore # Do not open this port automatically in a new browser tab
+  - port: 3000 # Frontend Next.js dev server port
+    onOpen: open-browser # Automatically open the browser to the frontend URL
 
 # Define tasks to run when the workspace starts
 tasks:
-  # Task to set up and run the Backend
   - name: Setup Backend & Run
     init: |
-      # Navigate to backend directory
+      # Navigate to the backend directory
       cd backend
       # Create and activate Python virtual environment
       python3 -m venv venv
       source venv/bin/activate
       # Install backend dependencies
       pip install -r requirements.txt
-      # Ensure __init__.py files exist (if not already committed)
+      # Ensure __init__.py files exist for Python package recognition (crucial for imports)
       touch app/__init__.py
       touch app/services/__init__.py
     command: |
-      # Once init is done, start the backend server
-      cd backend/app # Navigate into the app directory for running
-      source ../venv/bin/activate # Activate venv relative to backend/app
-      uvicorn main:app --reload --host 0.0.0.0 --port 8000 # Listen on 0.0.0.0 for Gitpod exposure
-    # openMode: split-right # Removed, as this is often where the validation error occurs for "allowed values"
+      # Once the 'init' phase is complete, start the backend server
+      cd backend/app # Navigate into the backend's application directory
+      source ../venv/bin/activate # Activate the virtual environment from the parent directory
+      # Start Uvicorn, listening on 0.0.0.0 for Gitpod to expose it
+      uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    # Optional: openMode property is typically removed to avoid validation errors,
+    # as global 'ports' settings handle browser opening.
 
-  # Task to set up and run the Frontend
   - name: Setup Frontend & Run
     init: |
-      # Navigate to frontend directory
+      # Navigate to the frontend directory
       cd frontend/aura-ai-ui
-      # Install frontend dependencies
+      # Install frontend Node.js dependencies
       npm install
-      # Create .env.local for frontend to connect to local backend
+      # Create .env.local file with the local backend URL for the frontend
+      # This allows the frontend (localhost:3000) to communicate with the backend (localhost:8000)
       echo "NEXT_PUBLIC_API_URL=http://localhost:8000/" > .env.local
     command: |
-      # Once init is done, start the frontend server
-      cd frontend/aura-ai-ui # Ensure current directory is frontend app root
-      npm run dev --port 3000 # Specify port, Gitpod will expose
-    # openMode: split-bottom # Removed, as this is often where the validation error occurs for "allowed values"
+      # Once the 'init' phase is complete, start the frontend dev server
+      cd frontend/aura-ai-ui # Ensure current directory is the frontend app root
+      # Start Next.js dev server, specifying the port
+      npm run dev --port 3000
+    # Optional: openMode property is typically removed.
