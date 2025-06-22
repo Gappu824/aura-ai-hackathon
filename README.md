@@ -4,22 +4,31 @@ Aura AI is a dual-engine, AI-driven platform meticulously designed to elevate cu
 
 ---
 
+## ✨ Core Engines
+
+Aura AI operates on two synergistic core engines, each powered by state-of-the-art AI, working in concert to provide a holistic trust ecosystem:
+
+1.  **Clarity Engine:** Proactively prevents customer dissatisfaction and returns by surfacing AI-driven insights about product specifics (like sizing, color, and material) directly on the product page. It identifies common points of confusion before a purchase is made.
+2.  **Authenticity Engine:** Employs sophisticated AI to detect and neutralize fraudulent reviews, counterfeit products, and other deceptive content with exceptional accuracy. This engine dives deep into linguistic patterns and semantic meaning to discern genuine feedback from malicious manipulation.
+
+---
+
 ## 🚀 Architectural Overview
 
 Aura AI is built on a professional, scalable, and resilient serverless microservices architecture, meticulously designed and deployed using AWS cloud services. This architecture ensures high availability, cost-efficiency, and alignment with Amazon's own internal engineering best practices.
 
-* **Frontend:** **Next.js (React) Application (App Router)** 🌐 for a high-performance, server-rendered user experience, ensuring fast loading times and optimal SEO.
-* **API Gateway:** **AWS HTTP API (API Gateway v2)** 🔗 acts as the single, public entry point for all frontend requests, providing centralized request handling, routing, and robust CORS management.
-* **Backend:** **AWS Lambda function** 💻 executing a **FastAPI** Python application. Lambda provides serverless compute, auto-scaling, and cost-efficiency.
-    * **Lambda Deployment:** The FastAPI application is deployed as a **Docker container image** 🐳 to AWS Lambda, ensuring a consistent and isolated environment with all necessary Python dependencies (like `boto3`, `mangum`) bundled inside.
+* **Frontend (Designed):** **Next.js (React) Application (App Router)** 🌐 designed for **Server-Side Rendering (SSR) and deployment on AWS Lambda with API Gateway**. This architecture aims for a high-performance user experience, handles complex routing, and enables direct API proxying to bypass external CORS complexities. *While the backend is fully deployed, the full cloud deployment of the frontend remains an active development challenge.*
+* **API Gateway (Frontend - Designed):** **AWS API Gateway (REST API)** 🔗 designed to act as the public entry point for the frontend application.
+* **Backend (Deployed & Robust):** **AWS Lambda function** 💻 executing a **FastAPI** Python application. Lambda provides serverless compute, auto-scaling, and cost-efficiency.
+    * **Lambda Deployment:** The FastAPI application is deployed as a **Docker container image** 🐳 to AWS Lambda, ensuring a consistent and isolated environment.
+    * **CORS Handling:** The FastAPI application within this Lambda explicitly manages CORS headers, ensuring proper communication.
+* **API Gateway (Backend - Deployed & Robust):** **AWS API Gateway (REST API)** ⚙️ acts as a dedicated public entry point for the backend Lambda. This API Gateway is fully deployed and configured with **built-in CORS headers**.
 * **AI/ML:**
-    * **Clarity Engine:** Leverages a powerful, pre-trained **Amazon Titan Text Express v1 LLM** via **Amazon Bedrock** 🧠. This provides rapid prototyping and effective summarization of common confusions.
-    * **Authenticity Engine (Advanced):** Utilizes a powerful, pre-trained **Anthropic Claude v2.1 (or Sonnet 4) LLM** via **Amazon Bedrock** ✨. This provides superior accuracy for nuanced review authenticity classification, particularly for challenging edge cases, by leveraging sophisticated prompt engineering and in-context learning.
-* **Infrastructure as Code (IaC):** The entire AWS infrastructure (Lambda, API Gateway, IAM Roles, ECR) is defined and managed using the **AWS Cloud Development Kit (CDK)** 🏗️ in Python, ensuring repeatable, auditable, and version-controlled deployments.
+    * **Clarity Engine:** Leverages a powerful, pre-trained **Amazon Titan Text Express v1 LLM** via **Amazon Bedrock** 🧠.
+    * **Authenticity Engine (Advanced):** Utilizes a powerful, pre-trained **Anthropic Claude v2.1 (or Sonnet 4) LLM** via **Amazon Bedrock** ✨.
+* **Infrastructure as Code (IaC):** The entire AWS infrastructure (Lambdas, API Gateways, IAM Roles, ECR) is defined and managed using the **AWS Cloud Development Kit (CDK)** 🏗️ in Python, ensuring repeatable, auditable, and version-controlled deployments.
 
-
-![Screenshot 2025-06-21 171608](https://github.com/user-attachments/assets/e9c54511-5873-406c-9511-344c943c5c65)
-
+![Screenshot 2025-06-22 171414](https://github.com/user-attachments/assets/d92afba1-2b6d-4aa8-afb3-ac2af5f36ee4)
 ---
 
 ## 💡 Winning Strategy & Amazon Alignment
@@ -32,7 +41,7 @@ Our solution's strength for the Amazon Hackathon lies not just in its functional
 
 2.  **Invent and Simplify:** 🛠️
     * **Dual-Engine Innovation:** Our dual-engine approach is a novel invention, holistically tackling both clarity and authenticity for a more comprehensive trust signal.
-    * **Strategic AI Pivot:** We demonstrated mature engineering judgment by initially exploring custom SageMaker models, but strategically **pivoted to leveraging powerful pre-trained Large Language Models (LLMs) on Bedrock**. This choice was made due to Bedrock's inherent capabilities in handling nuanced, complex language understanding with limited custom data, showcasing a pragmatic approach to selecting the *right tool for the job*—an optimal balance of accuracy, cost, and speed. We utilize **Few-Shot Chain-of-Thought Reasoning** with Bedrock for advanced in-context learning.
+    * **Strategic AI Pivot (Backend):** We demonstrated mature engineering judgment by initially exploring custom SageMaker models, but strategically **pivoted to leveraging powerful pre-trained Large Language Models (LLMs) on Bedrock**. This choice was made due to Bedrock's inherent capabilities in handling nuanced, complex language understanding with limited custom data, showcasing a pragmatic approach to selecting the *right tool for the job*—an optimal balance of accuracy, cost, and speed. We utilize **Few-Shot Chain-of-Thought Reasoning** with Bedrock for advanced in-context learning.
 
 3.  **Earn Trust:** ✅
     * **Robustness against Manipulation:** Our Authenticity Engine is driven by meticulous **prompt engineering** leveraging an **edge-case-ready dataset** that includes sarcasm, low-effort authenticity, irrelevant details, contradictory sentiment, and sophisticated fakes. This approach, powered by Claude's advanced reasoning, prepares the model for real-world adversarial attacks, fostering genuine trust in the review ecosystem.
@@ -40,7 +49,7 @@ Our solution's strength for the Amazon Hackathon lies not just in its functional
 
 4.  **Think Big & Frugality:** 💰
     * **Foundational AI:** The chosen Bedrock LLMs can be adapted for future high-value features (e.g., semantic search, review clustering, outlier detection) by modifying prompts, demonstrating inherent scalability without complex retraining pipelines.
-    * **Cost-Efficiency:** Our architecture leverages serverless Lambda and cost-effective Bedrock inferencing, reflecting a deep understanding of AWS cost optimization by consuming pre-trained model capacity.
+    * **Cost-Efficiency:** Our architecture leverages serverless Lambda functions and cost-effective Bedrock inferencing, reflecting a deep understanding of AWS cost optimization by consuming pre-trained model capacity.
 
 ---
 
@@ -55,11 +64,11 @@ Ensure you have the following installed on your local machine:
 * **Node.js (18.x or later) & npm (or yarn)**
 * **Python (3.9)**
 * **AWS CLI v2:** Configured with credentials for an AWS account where you have permissions to:
-    * Create and manage IAM Users/Roles, S3 Buckets, Lambda Functions, API Gateway (HTTP API).
+    * Create and manage IAM Users/Roles, Lambda Functions, API Gateway (REST API).
     * **Access Amazon Bedrock models** (specifically `amazon.titan-text-express-v1` and `anthropic.claude-v2:1` or `anthropic.claude-3-sonnet-20240229-v1:0`).
-    * Access Amazon ECR (for pushing and pulling Docker images).
+    * Access Amazon ECR (for pushing and pulling Docker images for backend Lambda).
 * **AWS CDK CLI:** Install globally: `npm install -g aws-cdk`
-* **Docker Desktop:** Must be installed and running, as CDK uses it to build Lambda function images.
+* **Docker Desktop:** Must be installed and running, as CDK uses it to build Backend Lambda function image.
 
 ### Installation & Setup
 
@@ -69,7 +78,7 @@ Ensure you have the following installed on your local machine:
     cd aura-ai # Navigate to your project root
     ```
 
-2.  **Backend Setup:**
+2.  **Backend Setup (Fully Deployed):**
     * Navigate to the backend directory:
         ```bash
         cd backend
@@ -84,18 +93,32 @@ Ensure you have the following installed on your local machine:
         ```bash
         pip install -r requirements.txt
         ```
-
-3.  **Frontend Setup:**
-    * Navigate to the frontend directory (assuming your Next.js project is directly in `frontend/`):
+    * **Build Backend Docker Image:**
         ```bash
-        cd ../frontend
+        docker build -t aura-ai-backend:latest . # Build the Docker image for your backend Lambda
+        ```
+        *This image will be used by CDK for deployment to Lambda.*
+
+3.  **Frontend Setup (Local Development):**
+    * Navigate to the frontend directory:
+        ```bash
+        cd ../frontend/aura-ai-ui # Assuming this is your Next.js project root
         ```
     * Install frontend dependencies:
         ```bash
         npm install # or yarn install
         ```
+    * **Prepare Frontend for Local Dev:**
+        * **Ensure `next.config.mjs` is correctly configured for `output: 'standalone'` and `rewrites`** pointing to `process.env.BACKEND_API_URL`.
+        * **Ensure `package.json` `start` script is `next start`.**
+        * **Ensure all `fetch` calls in `app/page.tsx` (and other frontend components) are relative paths** (e.g., `/api/v1/generate_clarity_alert`).
+        * **Local Build Step (for testing local frontend and preparing for future deployments):**
+            ```bash
+            npm run build # This command MUST succeed locally and generate .next/standalone
+            ```
+            * **Troubleshooting:** If `npm run build` fails, debug it locally until it passes. This includes verifying `npm install`, `postcss.config.mjs` (for `@tailwindcss/postcss`), and `next.config.mjs` (for `BACKEND_API_URL` during build).
 
-4.  **AWS CDK Infrastructure Deployment (Backend Cloud Resources):**
+4.  **AWS CDK Infrastructure Deployment (Deploying/Updating Backend):**
     * Navigate to the infrastructure directory:
         ```bash
         cd ../infrastructure
@@ -109,34 +132,26 @@ Ensure you have the following installed on your local machine:
         cdk bootstrap aws://YOUR_AWS_ACCOUNT_ID/YOUR_AWS_REGION # e.g., aws://123456789012/us-east-1
         ```
         * **Important:** Replace `YOUR_AWS_ACCOUNT_ID` and `YOUR_AWS_REGION`.
-    * **Deploy the Backend API and Lambda:**
-        * Run the deployment command (no SageMaker endpoint context needed anymore):
+    * **Deploy the Backend API Gateway and Lambda:**
+        * **This will create/update your REST API Backend and its associated Lambda.**
             ```bash
-            cdk deploy
+            cdk deploy AuraAiStack-Dev # Use the existing stack name
             ```
         * Confirm IAM changes when prompted (`y`).
-        * Upon successful completion, the terminal will output your live **API Gateway URL (ApiUrl)**. **Copy this URL.**
-
-5.  **Frontend Deployment (AWS Amplify Console Recommended):**
-    * **Push your frontend code to a Git repository** (if not already).
-    * **Navigate to AWS Amplify Console** in the AWS Management Console.
-    * **Connect New App:** Choose your Git provider, select your repository and the appropriate branch (e.g., `main`).
-    * **Configure Build Settings:** Amplify should auto-detect Next.js.
-        * **Set Environment Variable:** In the "Environment variables" section, add:
-            * **Key:** `NEXT_PUBLIC_API_URL`
-            * **Value:** Paste the **API Gateway URL** you copied from the `cdk deploy` output.
-    * **Save and Deploy.** Monitor the build and deployment process in Amplify.
-    * Once successful, Amplify will provide the live URL for your frontend application.
+        * Upon successful completion, the terminal will output your live **`BackendApiUrl`**. **Copy this URL.**
 
 ---
 
 ## 📄 API Reference
 
-Your deployed application exposes the following REST API endpoints:
+Your deployed **Backend API** exposes the following REST API endpoints. The frontend application, once fully deployed, will consume these endpoints.
+
+* **Backend API Base URL:** `https://YOUR_BACKEND_API_URL/` (e.g., `https://gpx4vdaiq6.execute-api.us-east-1.amazonaws.com/prod/`)
 
 ### `POST /api/v1/generate_clarity_alert`
 
 * **Purpose:** Analyzes a collection of customer reviews to identify common themes of confusion or mismatched expectations, generating a concise clarity alert.
+* **Endpoint:** Accessed via `https://YOUR_BACKEND_API_URL/api/v1/generate_clarity_alert`
 * **Request Body (`application/json`):**
     ```json
     {
@@ -171,6 +186,7 @@ Your deployed application exposes the following REST API endpoints:
 ### `POST /api/v1/analyze_review_authenticity`
 
 * **Purpose:** Analyzes a single customer review for authenticity signals using an advanced AI model (Anthropic Claude), providing a score and detailed reasoning.
+* **Endpoint:** Accessed via `https://YOUR_BACKEND_API_URL/api/v1/analyze_review_authenticity`
 * **Request Body (`application/json`):**
     ```json
     {
@@ -202,46 +218,53 @@ For local development and testing:
     * The API will be available at `http://127.0.0.1:8000`.
 
 2.  **Start Frontend (Next.js):**
-    * Navigate to your frontend root directory: `cd frontend` (or `cd .` if already in project root).
-    * Ensure your `NEXT_PUBLIC_API_URL` in `.env.local` is set to `http://127.0.0.1:8000`.
+    * Navigate to your frontend root directory: `cd frontend/aura-ai-ui`
+    * **Temporary Local `.env.local` for Dev:** Create or update `.env.local` with your local backend URL:
+        ```
+        NEXT_PUBLIC_API_URL=[http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+        ```
     * Run Next.js development server: `npm run dev`
     * Open `http://localhost:3000` in your browser.
 
-## ✅ Final Verification (Post-Deployment)
+## ✅ Final Verification (Backend)
 
-Once both your backend (Lambda/API Gateway) and frontend (Next.js on Amplify) are deployed:
+*Since the full frontend cloud deployment is an ongoing challenge, this section focuses on verifying the backend service functionality.*
 
-1.  **Access the Deployed Frontend:** Open the live URL provided by AWS Amplify Console in your browser.
-
-2.  **Full Functional Test:**
-    * **User Input Section:** Test with a variety of reviews (generic positive, sarcastic, detailed negative, etc.) in the input box. Verify the authenticity score, reasoning, and clarity alerts.
-    * **Pre-defined Examples:** Test the "Analyze Authenticity" buttons for the mock reviews.
-    * **Expected Results:** The Authenticity Engine (powered by your **Anthropic Claude LLM**) should provide high-confidence, accurate scores and reasoning for all the edge cases we've meticulously covered. The Clarity Engine (Bedrock) should also function correctly.
+1.  **Access the Deployed Backend API:** Use the `BackendApiUrl` provided by your `cdk deploy` output.
+2.  **Test Backend API with `curl` (Recommended):**
+    * Open your terminal.
+    * Use `curl` commands to test your API endpoints. For example:
+        ```bash
+        curl -X POST -H "Content-Type: application/json" -d "{\"review_text\": \"This product is great! I highly recommend it.\"}" https://YOUR_BACKEND_API_URL/api/v1/analyze_review_authenticity
+        ```
+        *(Replace `YOUR_BACKEND_API_URL` with your actual URL)*
+    * **Expected Results:** You should receive valid JSON responses (authenticity score/reasoning, or clarity alert). **CORS errors should be absent in the `curl` response.**
 
 3.  **Monitor CloudWatch Logs:**
-    * Simultaneously, open your AWS CloudWatch console.
+    * Open your AWS CloudWatch console.
     * Navigate to **Log groups**.
-    * Find the log group for your Lambda function (`/aws/lambda/AuraAiStack-Dev-AuraApiFunction...`).
-    * Open the latest log stream and observe new entries as you interact with the frontend. This confirms Lambda invocations and allows you to debug any runtime errors.
+    * Find the log group for your backend Lambda (`/aws/lambda/AuraApiFunction...`).
+    * Open the latest log streams and observe new entries to confirm successful Lambda invocations and no errors.
 
-## 📈 Future Enhancements
+## 📈 Future Enhancements (Full Frontend Deployment as a Primary Goal)
 
-* **Robust Data Collection & MLOps Pipelines:** Implement automated pipelines for continuous collection, labeling, and re-training/re-prompting of LLMs to combat model drift and adapt to new deceptive patterns.
+This project demonstrates a robust, production-ready foundation for AI-powered trust in e-commerce. Building upon this, the **immediate next phase of development will focus on the full cloud deployment of the Next.js frontend**, transforming it into a complete, end-to-end web application accessible via a single URL. This involves overcoming several critical challenges encountered during the hackathon development:
+
+* **Finalizing Frontend Cloud Deployment:** This is the primary objective. The strategy involves deploying the **Next.js SSR application directly on AWS Lambda with API Gateway** (`FrontendAppGateway`). This approach is designed to eliminate CORS issues by leveraging Next.js's native ability to proxy API calls from the same origin, and to handle environment variable injection at runtime robustly.
+    * **Lessons Learned:** This journey has provided invaluable insights into the complexities of deploying Next.js App Router applications in managed AWS environments, specifically identifying nuanced issues with `npm run build` behavior within Docker, persistent environment variable caching, and intricate CORS configurations across various services (Amplify, S3/CloudFront, App Runner). The iterative debugging has underscored the importance of meticulous environment isolation and direct manipulation of compiled assets when standard methods prove insufficient.
 
 * **V2 Roadmap - Specialized Model Fine-Tuning:** The future vision includes a plan to collect a large-scale, human-verified dataset of reviews. With such a robust asset, a custom MLOps pipeline leveraging **Amazon SageMaker** can be utilized to train highly optimized, cost-effective, and specialized models for the Authenticity Engine, potentially surpassing the performance of general-purpose LLMs for specific, high-volume tasks.
-
 * **Multi-Modal Authenticity:** Integrate image forensics (e.g., using Amazon Rekognition or custom models on SageMaker) to analyze product images for manipulation.
-
 * **Advanced Fraud Detection:** Implement Graph Neural Networks (GNNs) for collusion detection (seller-reviewer networks) and temporal anomaly detection on data (e.g., in DynamoDB).
-
 * **Human-in-the-Loop Feedback System:** Develop a multi-tiered resolution system for reported issues, empowering human investigators with AI-assisted insights and providing feedback for LLM refinement.
-
 * **Community Rewards Program:** Build out a gamified system to incentivize accurate review reporting.
-
 * **User Authentication & Personalization:** Secure the application and tailor experiences based on user profiles.
+
+---
 
 ## 👥 Team & Acknowledgements
 
-* **Team Name:**  Hustlers
-* **Team Members:**  Kumud Agrawal(Team Captain), Gourav Mittal
-* **Acknowledgements:** Special thanks to Amazon Bedrock and AWS Lambda, API Gateway, and Amplify Console for providing the powerful and scalable services that enabled this project.
+* **Team Name:** Hustlers
+* **Team Members:** Kumud Agrawal (Team Captain), Gourav Mittal
+* **Acknowledgements:** Special thanks to Amazon Bedrock and AWS Lambda, API Gateway for providing the powerful and scalable services that enabled this project.
+
