@@ -1,6 +1,6 @@
 # Aura AI - Proactive Clarity & Authenticity Shield ✨🛡️
 
-Aura AI is a dual-engine, AI-driven platform meticulously designed to elevate customer trust and confidence in online marketplaces, mirroring Amazon's commitment to customer obsession. It marks a paradigm shift from reactive defense to **proactive assurance**, enhancing the clarity of every purchase decision and securing the marketplace from sophisticated fraud. This project was developed for the **HackOn with Amazon - Season 5** competition.
+Aura AI is a dual-engine, AI-driven platform meticulously designed to elevate customer trust and confidence in online marketplaces. It marks a paradigm shift from reactive defense to **proactive assurance**, enhancing the clarity of every purchase decision and securing the marketplace from sophisticated fraud.
 
 https://github.com/user-attachments/assets/8779f18e-f2c1-4dd3-99a3-37e24dd70738
 
@@ -35,9 +35,7 @@ Aura AI is built on a professional, scalable, and resilient serverless microserv
 
 ---
 
-## 💡 Winning Strategy & Amazon Alignment
-
-Our solution's strength for the Amazon Hackathon lies not just in its functionality but in its profound alignment with Amazon's Leadership Principles and engineering philosophy:
+## 💡 Winning Strategy
 
 1.  **Customer Obsession:** 💖
     * **Proactive Clarity:** The Clarity Engine directly addresses customer pain points by preventing confusion and returns, enhancing the pre-purchase experience.
@@ -45,8 +43,8 @@ Our solution's strength for the Amazon Hackathon lies not just in its functional
 
 2.  **Invent and Simplify:** 🛠️
     * **Dual-Engine Innovation:** Our dual-engine approach is a novel invention, holistically tackling both clarity and authenticity for a more comprehensive trust signal.
-    * **Strategic AI Pivot (Backend):** We demonstrated mature engineering judgment by initially exploring custom SageMaker models, but strategically **pivoted to leveraging powerful pre-trained Large Language Models (LLMs) on Bedrock**. This choice was made due to Bedrock's inherent capabilities in handling nuanced, complex language understanding with limited custom data, showcasing a pragmatic approach to selecting the *right tool for the job*—an optimal balance of accuracy, cost, and speed. We utilize **Few-Shot Chain-of-Thought Reasoning** with Bedrock for advanced in-context learning.
-    * **Robust Frontend Deployment (Addressing Complexities):** Our development journey involved iterative exploration of frontend hosting solutions (Amplify, S3/CloudFront static hosting, App Runner). In the face of persistent configuration complexities, we strategically pivoted to a **server-side rendered (SSR) Next.js application designed for deployment directly on AWS Lambda with API Gateway**. This approach provided the most robust solution by aiming for:
+    * **Strategic AI Pivot (Backend):** I demonstrated mature engineering judgment by initially exploring custom SageMaker models, but strategically **pivoted to leveraging powerful pre-trained Large Language Models (LLMs) on Bedrock**. This choice was made due to Bedrock's inherent capabilities in handling nuanced, complex language understanding with limited custom data, showcasing a pragmatic approach to selecting the *right tool for the job*—an optimal balance of accuracy, cost, and speed. We utilize **Few-Shot Chain-of-Thought Reasoning** with Bedrock for advanced in-context learning.
+    * **Robust Frontend Deployment (Addressing Complexities):** My development journey involved iterative exploration of frontend hosting solutions (Amplify, S3/CloudFront static hosting, App Runner). In the face of persistent configuration complexities, we strategically pivoted to a **server-side rendered (SSR) Next.js application designed for deployment directly on AWS Lambda with API Gateway**. This approach provided the most robust solution by aiming for:
         * Elimination of CORS issues through same-origin proxying via Next.js rewrites.
         * Reliable environment variable injection at runtime.
         * Leveraging a standard and well-supported Next.js deployment pattern on AWS.
