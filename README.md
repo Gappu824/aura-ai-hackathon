@@ -273,11 +273,7 @@ This project demonstrates a robust, production-ready foundation for AI-powered t
 
 ---
 
-## 👥 Team & Acknowledgements
 
-* **Team Name:** Hustlers
-* **Team Members:** Kumud Agrawal (Team Captain), Gourav Mittal
-* **Acknowledgements:** Special thanks to Amazon Bedrock and AWS Lambda, API Gateway for providing the powerful and scalable services that enabled this project.
 
 
 
